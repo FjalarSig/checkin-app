@@ -17,6 +17,7 @@
       --red:        #ef4444;
       --red-dark:   #dc2626;
       --blue:       #3b82f6;
+      --blue-dark:  #2563eb;
       --gray-50:    #f9fafb;
       --gray-100:   #f3f4f6;
       --gray-200:   #e5e7eb;
@@ -79,27 +80,83 @@
       color: var(--gray-700);
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 15px 16px;
-      font-size: 1.1rem;
+    /* Phone number input with country code prefix */
+    .phone-group {
+      display: flex;
       border: 2px solid var(--gray-200);
       border-radius: 12px;
-      outline: none;
+      overflow: hidden;
+      margin-bottom: 20px;
       transition: border-color 0.15s;
-      color: var(--gray-900);
-      margin-bottom: 28px;
-      -webkit-appearance: none;
     }
 
-    input[type="text"]:focus {
+    .phone-group:focus-within {
       border-color: var(--blue);
     }
 
-    input[type="text"]::placeholder {
-      color: #c4c9d4;
+    .phone-prefix {
+      background: var(--gray-100);
+      padding: 15px 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      border-right: 2px solid var(--gray-200);
+      white-space: nowrap;
+      user-select: none;
     }
 
+    .phone-group input {
+      flex: 1;
+      padding: 15px 14px;
+      font-size: 1.1rem;
+      border: none;
+      outline: none;
+      color: var(--gray-900);
+      background: white;
+      min-width: 0;
+    }
+
+    .phone-group input::placeholder { color: #c4c9d4; }
+
+    /* Large OTP code input */
+    .otp-input {
+      width: 100%;
+      padding: 18px;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-align: center;
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      outline: none;
+      margin-bottom: 20px;
+      -webkit-appearance: none;
+      transition: border-color 0.15s;
+    }
+
+    .otp-input:focus { border-color: var(--blue); }
+
+    /* Primary (blue) full-width button */
+    .btn-primary {
+      width: 100%;
+      background: var(--blue);
+      color: white;
+      padding: 18px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-primary:active:not(:disabled) { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Check In / Check Out buttons */
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -107,7 +164,7 @@
       margin-bottom: 24px;
     }
 
-    button {
+    .btn-checkin, .btn-checkout {
       padding: 20px 12px;
       font-size: 1.05rem;
       font-weight: 700;
@@ -119,31 +176,40 @@
       user-select: none;
     }
 
-    button:active:not(:disabled) {
-      transform: scale(0.96);
+    .btn-checkin  { background: var(--green); color: white; }
+    .btn-checkout { background: var(--red);   color: white; }
+    .btn-checkin:hover:not(:disabled)  { background: var(--green-dark); }
+    .btn-checkout:hover:not(:disabled) { background: var(--red-dark); }
+
+    .btn-checkin:active:not(:disabled),
+    .btn-checkout:active:not(:disabled) { transform: scale(0.96); }
+
+    .btn-checkin:disabled,
+    .btn-checkout:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Small text link (back / sign out) */
+    .text-link {
+      background: none;
+      border: none;
+      color: var(--gray-600);
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 6px;
+      display: block;
+      margin: 4px auto 0;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    .text-link:hover { color: var(--gray-900); }
 
-    .btn-checkin {
-      background: var(--green);
-      color: white;
-    }
-
-    .btn-checkin:hover:not(:disabled) {
-      background: var(--green-dark);
-    }
-
-    .btn-checkout {
-      background: var(--red);
-      color: white;
-    }
-
-    .btn-checkout:hover:not(:disabled) {
-      background: var(--red-dark);
+    /* Worker name shown on check-in screen */
+    .worker-name {
+      font-size: 1.6rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 4px;
     }
 
     /* Distance indicator */
@@ -152,7 +218,7 @@
       border-radius: 12px;
       padding: 14px 16px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
       font-size: 0.9rem;
       color: var(--gray-600);
     }
@@ -173,29 +239,14 @@
       text-align: center;
       line-height: 1.5;
       display: none;
+      margin-top: 12px;
     }
 
-    .status.show { display: block; }
+    .status.show   { display: block; }
+    .status.success { background: #dcfce7; color: #166534; border: 1.5px solid #bbf7d0; }
+    .status.error   { background: #fee2e2; color: #991b1b; border: 1.5px solid #fecaca; }
+    .status.loading { background: #eff6ff; color: #1e40af; border: 1.5px solid #bfdbfe; }
 
-    .status.success {
-      background: #dcfce7;
-      color: #166534;
-      border: 1.5px solid #bbf7d0;
-    }
-
-    .status.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1.5px solid #fecaca;
-    }
-
-    .status.loading {
-      background: #eff6ff;
-      color: #1e40af;
-      border: 1.5px solid #bfdbfe;
-    }
-
-    /* Spinner used inside loading messages */
     .spinner {
       display: inline-block;
       width: 15px;
@@ -214,39 +265,81 @@
 <body>
 
 <div class="card">
-  <div class="logo"><img src="fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
-  <h1>Fjölsmiðjan</h1>
-  <p class="subtitle">Log your arrival and departure</p>
 
-  <label for="workerName">Your Name or Worker ID</label>
-  <input
-    type="text"
-    id="workerName"
-    placeholder="e.g. Jane Smith"
-    autocomplete="name"
-    autocorrect="off"
-    autocapitalize="words"
-    spellcheck="false"
-  >
+  <!-- ── SCREEN 1: Phone number entry ── -->
+  <div id="screen-phone">
+    <div class="logo"><img src="fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
+    <h1>Fjölsmiðjan</h1>
+    <p class="subtitle">Enter your phone number to sign in</p>
 
-  <div class="buttons">
-    <button class="btn-checkin"  id="btnCheckIn"  onclick="handleEvent('check_in')">✅ Check In</button>
-    <button class="btn-checkout" id="btnCheckOut" onclick="handleEvent('check_out')">🚪 Check Out</button>
+    <label for="phoneInput">Phone number</label>
+    <div class="phone-group">
+      <span class="phone-prefix">+354</span>
+      <input
+        type="tel"
+        id="phoneInput"
+        placeholder="XXX XXXX"
+        maxlength="8"
+        inputmode="tel"
+        autocomplete="tel-national"
+      >
+    </div>
+
+    <button class="btn-primary" id="btnSendCode" onclick="sendCode()">Send verification code</button>
   </div>
 
-  <div class="location-box" id="locationBox">
-    <div>Distance from workplace</div>
-    <div class="distance-value" id="distanceDisplay">—</div>
+  <!-- ── SCREEN 2: OTP verification ── -->
+  <div id="screen-otp" style="display:none">
+    <div class="logo"><img src="fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
+    <h1>Enter code</h1>
+    <p class="subtitle" id="otpSubtitle">Code sent to your phone</p>
+
+    <label for="otpInput">Verification code</label>
+    <input
+      type="text"
+      class="otp-input"
+      id="otpInput"
+      placeholder="000000"
+      maxlength="6"
+      inputmode="numeric"
+      autocomplete="one-time-code"
+    >
+
+    <button class="btn-primary" id="btnVerify" onclick="verifyCode()">Verify</button>
+    <button class="text-link" onclick="showScreen('phone')">← Wrong number? Go back</button>
   </div>
 
+  <!-- ── SCREEN 3: Check in / Check out ── -->
+  <div id="screen-checkin" style="display:none">
+    <div class="logo"><img src="fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
+    <p class="subtitle" style="margin-bottom:4px">Welcome,</p>
+    <p class="worker-name" id="workerNameDisplay"></p>
+    <p class="subtitle" style="margin-top:4px;margin-bottom:28px"></p>
+
+    <div class="buttons">
+      <button class="btn-checkin"  id="btnCheckIn"  onclick="handleEvent('check_in')">✅ Check In</button>
+      <button class="btn-checkout" id="btnCheckOut" onclick="handleEvent('check_out')">🚪 Check Out</button>
+    </div>
+
+    <div class="location-box">
+      <div>Distance from workplace</div>
+      <div class="distance-value" id="distanceDisplay">Locating…</div>
+    </div>
+
+    <button class="text-link" onclick="signOut()">Sign out</button>
+  </div>
+
+  <!-- Shared status message (used by all screens) -->
   <div class="status" id="statusMsg"></div>
+
 </div>
 
 <script>
 /*
  * ================================================================
- * SUPABASE TABLE SETUP
- * Run the SQL below once in your Supabase project's SQL editor.
+ * SUPABASE SETUP SQL
+ *
+ * STEP 1 — Run this if you haven't already (initial checkins table):
  * ================================================================
  *
  * create table public.checkins (
@@ -256,126 +349,252 @@
  *   timestamp        timestamptz not null default now(),
  *   latitude         float8,
  *   longitude        float8,
- *   distance_meters  float8
+ *   distance_meters  float8,
+ *   user_id          uuid        references auth.users(id)
  * );
  *
- * -- Enable Row Level Security
  * alter table public.checkins enable row level security;
  *
- * -- Allow anonymous inserts (Phase 1 — no login required)
- * create policy "Allow anon inserts"
+ * create policy "Authenticated users insert own checkins"
  *   on public.checkins
  *   for insert
- *   to anon
- *   with check (true);
+ *   to authenticated
+ *   with check (user_id = auth.uid());
  *
+ * ================================================================
+ * STEP 2 — Workers table (admin adds one row per worker):
+ * ================================================================
+ *
+ * create table public.workers (
+ *   id     uuid primary key default gen_random_uuid(),
+ *   phone  text unique not null,
+ *   name   text not null,
+ *   active boolean default true
+ * );
+ *
+ * alter table public.workers enable row level security;
+ *
+ * create policy "Worker reads own record"
+ *   on public.workers
+ *   for select
+ *   to authenticated
+ *   using (phone = (select phone from auth.users where id = auth.uid()));
+ *
+ * ================================================================
+ * STEP 3 — Add a worker (run once per person, phone in E.164 format):
+ * ================================================================
+ *
+ * insert into public.workers (phone, name)
+ * values ('+3545551234', 'Worker Name');
+ *
+ * ================================================================
+ * STEP 4 — Enable Phone auth in Supabase:
+ *   Authentication → Providers → Phone → Enable
+ *   Then configure your Twilio Account SID, Auth Token, and
+ *   Message Service SID (or From number).
  * ================================================================
  */
 
 // ================================================================
-// CONFIGURATION — update these values before deploying
+// CONFIGURATION
 // ================================================================
 const CONFIG = {
   SUPABASE_URL:           "https://jtyrnchdiyxywxmdiqrm.supabase.co",
   SUPABASE_ANON_KEY:      "sb_publishable_BkaGwsiXIgf1wzmljV-qZg_AE1PtZzY",
-  WORKPLACE_LAT:           64.094941,                 // latitude of the workplace
-  WORKPLACE_LNG:          -21.808201,                 // longitude of the workplace
-  GEOFENCE_RADIUS_METERS:  50,                        // allowed radius in meters
-  TABLE_NAME:             "checkins"                  // Supabase table name
+  COUNTRY_CODE:           "+354",
+  WORKPLACE_LAT:           64.094941,
+  WORKPLACE_LNG:          -21.808201,
+  GEOFENCE_RADIUS_METERS:  50,
+  CHECKINS_TABLE:         "checkins",
+  WORKERS_TABLE:          "workers"
 };
 // ================================================================
 
-// Initialise the Supabase client
 let supabase;
 try {
   supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 } catch (e) {
-  document.addEventListener('DOMContentLoaded', () => {
-    showStatus('App failed to load. Please refresh the page.', 'error');
-  });
+  document.addEventListener('DOMContentLoaded', () =>
+    showStatus('App failed to load. Please refresh.', 'error')
+  );
   throw e;
 }
 
-// Request location immediately on load so distance shows and permission is granted upfront
+let currentPhone = '';
+let watchId = null;
+
+// ── Screen management ──────────────────────────────────────────
+
+function showScreen(name) {
+  ['phone', 'otp', 'checkin'].forEach(s => {
+    document.getElementById(`screen-${s}`).style.display = s === name ? '' : 'none';
+  });
+  clearStatus();
+
+  if (name === 'checkin') {
+    startLocationWatch();
+  } else {
+    stopLocationWatch();
+  }
+}
+
+// ── Startup: restore session if already logged in ──────────────
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await loadWorker(session.user);
+  } else {
+    showScreen('phone');
+  }
+});
+
+// ── Phone screen ───────────────────────────────────────────────
+
+async function sendCode() {
+  const digits = document.getElementById('phoneInput').value.trim().replace(/\s/g, '');
+  if (!digits || digits.length < 7) {
+    showStatus('Please enter a valid phone number.', 'error');
+    return;
+  }
+
+  currentPhone = CONFIG.COUNTRY_CODE + digits;
+  const btn = document.getElementById('btnSendCode');
+  btn.disabled = true;
+  showStatus('<span class="spinner"></span> Sending code…', 'loading');
+
+  const { error } = await supabase.auth.signInWithOtp({ phone: currentPhone });
+
+  if (error) {
+    showStatus('Could not send code. Check the number and try again.', 'error');
+    btn.disabled = false;
+    return;
+  }
+
+  document.getElementById('otpSubtitle').textContent =
+    `Code sent to ${CONFIG.COUNTRY_CODE} ${digits}`;
+  showScreen('otp');
+}
+
+// ── OTP screen ─────────────────────────────────────────────────
+
+async function verifyCode() {
+  const token = document.getElementById('otpInput').value.trim();
+  if (token.length !== 6) {
+    showStatus('Please enter the 6-digit code.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnVerify');
+  btn.disabled = true;
+  showStatus('<span class="spinner"></span> Verifying…', 'loading');
+
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone: currentPhone,
+    token,
+    type: 'sms'
+  });
+
+  if (error) {
+    showStatus('Incorrect code. Please try again.', 'error');
+    btn.disabled = false;
+    return;
+  }
+
+  await loadWorker(data.user);
+  btn.disabled = false;
+}
+
+// ── Load worker record after authentication ────────────────────
+
+async function loadWorker(user) {
+  const { data, error } = await supabase
+    .from(CONFIG.WORKERS_TABLE)
+    .select('name')
+    .single();
+
+  if (error || !data) {
+    showStatus(
+      'Your number is not registered. Please contact your manager.',
+      'error'
+    );
+    await supabase.auth.signOut();
+    showScreen('phone');
+    return;
+  }
+
+  document.getElementById('workerNameDisplay').textContent = data.name;
+  showScreen('checkin');
+}
+
+// ── Sign out ───────────────────────────────────────────────────
+
+async function signOut() {
+  await supabase.auth.signOut();
+  document.getElementById('phoneInput').value = '';
+  document.getElementById('otpInput').value = '';
+  currentPhone = '';
+  showScreen('phone');
+}
+
+// ── Location watch (active only on check-in screen) ───────────
+
 function startLocationWatch() {
   if (!navigator.geolocation) {
+    document.getElementById('distanceDisplay').textContent = '—';
     showStatus('Please enable location access to use this app.', 'error');
     return;
   }
+
   document.getElementById('distanceDisplay').textContent = 'Locating…';
-  navigator.geolocation.watchPosition(
+
+  watchId = navigator.geolocation.watchPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
       const distance = haversineDistance(
         latitude, longitude,
         CONFIG.WORKPLACE_LAT, CONFIG.WORKPLACE_LNG
       );
-      updateDistanceDisplay(distance);
+      document.getElementById('distanceDisplay').textContent =
+        distance < 1000
+          ? `${Math.round(distance)} m away`
+          : `${(distance / 1000).toFixed(2)} km away`;
     },
     (err) => {
-      if (err.code === 1) {
-        document.getElementById('distanceDisplay').textContent = '—';
-        showStatus('Please enable location access to use this app.', 'error');
-      } else {
-        document.getElementById('distanceDisplay').textContent = '—';
-        showStatus('Could not get your location. Please try again.', 'error');
-      }
+      document.getElementById('distanceDisplay').textContent = '—';
+      showStatus(
+        err.code === 1
+          ? 'Please enable location access to use this app.'
+          : 'Could not get your location. Please try again.',
+        'error'
+      );
     },
     { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
   );
 }
 
-document.addEventListener('DOMContentLoaded', startLocationWatch);
-
-// Haversine formula — returns straight-line distance in metres between two lat/lng points
-function haversineDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371000; // Earth's mean radius in metres
-  const toRad = d => d * Math.PI / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+function stopLocationWatch() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
 }
 
-function showStatus(html, type) {
-  const el = document.getElementById('statusMsg');
-  el.innerHTML = html;
-  el.className = `status show ${type}`;
-}
-
-function setButtons(disabled) {
-  document.getElementById('btnCheckIn').disabled = disabled;
-  document.getElementById('btnCheckOut').disabled = disabled;
-}
-
-function updateDistanceDisplay(metres) {
-  document.getElementById('distanceDisplay').textContent =
-    metres < 1000
-      ? `${Math.round(metres)} m away`
-      : `${(metres / 1000).toFixed(2)} km away`;
-}
+// ── Check In / Check Out ───────────────────────────────────────
 
 async function handleEvent(eventType) {
-  const workerName = document.getElementById('workerName').value.trim();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) { showScreen('phone'); return; }
+
   const actionLabel = eventType === 'check_in' ? 'check in' : 'check out';
 
-  // Validate name
-  if (!workerName) {
-    showStatus('Please enter your name before checking in.', 'error');
-    document.getElementById('workerName').focus();
-    return;
-  }
-
-  // Confirm geolocation is supported
   if (!navigator.geolocation) {
     showStatus('Please enable location access to use this app.', 'error');
     return;
   }
 
   showStatus('<span class="spinner"></span> Getting your location…', 'loading');
-  setButtons(true);
+  setCheckinButtons(true);
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
@@ -385,29 +604,29 @@ async function handleEvent(eventType) {
         CONFIG.WORKPLACE_LAT, CONFIG.WORKPLACE_LNG
       );
 
-      updateDistanceDisplay(distance);
-
-      // Geofence check
       if (distance > CONFIG.GEOFENCE_RADIUS_METERS) {
         showStatus(
           `You must be at the workplace to ${actionLabel}.<br>
            <small>You are ${Math.round(distance)} m away — limit is ${CONFIG.GEOFENCE_RADIUS_METERS} m.</small>`,
           'error'
         );
-        setButtons(false);
+        setCheckinButtons(false);
         return;
       }
 
       showStatus('<span class="spinner"></span> Submitting…', 'loading');
 
+      const workerName = document.getElementById('workerNameDisplay').textContent;
+
       const { error } = await supabase
-        .from(CONFIG.TABLE_NAME)
+        .from(CONFIG.CHECKINS_TABLE)
         .insert({
           worker_name:     workerName,
           event_type:      eventType,
           latitude:        latitude,
           longitude:       longitude,
-          distance_meters: Math.round(distance)
+          distance_meters: Math.round(distance),
+          user_id:         user.id
         });
 
       if (error) {
@@ -416,25 +635,54 @@ async function handleEvent(eventType) {
       } else {
         const verb = eventType === 'check_in' ? 'Checked in' : 'Checked out';
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        showStatus(`${verb} successfully at ${time}. See you!`, 'success');
-        document.getElementById('workerName').value = '';
+        showStatus(`${verb} successfully at ${time}.`, 'success');
       }
 
-      setButtons(false);
+      setCheckinButtons(false);
     },
     (err) => {
-      // GPS error codes: 1 = PERMISSION_DENIED, 2 = UNAVAILABLE, 3 = TIMEOUT
-      if (err.code === 1) {
-        showStatus('Please enable location access to use this app.', 'error');
-      } else if (err.code === 3) {
-        showStatus('Could not get your location. Please try again.', 'error');
-      } else {
-        showStatus('Could not get your location. Please try again.', 'error');
-      }
-      setButtons(false);
+      showStatus(
+        err.code === 1
+          ? 'Please enable location access to use this app.'
+          : 'Could not get your location. Please try again.',
+        'error'
+      );
+      setCheckinButtons(false);
     },
     { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
   );
+}
+
+function setCheckinButtons(disabled) {
+  document.getElementById('btnCheckIn').disabled  = disabled;
+  document.getElementById('btnCheckOut').disabled = disabled;
+}
+
+// ── Haversine distance ─────────────────────────────────────────
+
+function haversineDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// ── Status helpers ─────────────────────────────────────────────
+
+function showStatus(html, type) {
+  const el = document.getElementById('statusMsg');
+  el.innerHTML = html;
+  el.className = `status show ${type}`;
+}
+
+function clearStatus() {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status';
+  el.innerHTML = '';
 }
 </script>
 
