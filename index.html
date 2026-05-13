@@ -284,6 +284,37 @@ const CONFIG = {
 // Initialise the Supabase client
 const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
+// Request location immediately on load so distance shows and permission is granted upfront
+function startLocationWatch() {
+  if (!navigator.geolocation) {
+    showStatus('Please enable location access to use this app.', 'error');
+    return;
+  }
+  document.getElementById('distanceDisplay').textContent = 'Locating…';
+  navigator.geolocation.watchPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      const distance = haversineDistance(
+        latitude, longitude,
+        CONFIG.WORKPLACE_LAT, CONFIG.WORKPLACE_LNG
+      );
+      updateDistanceDisplay(distance);
+    },
+    (err) => {
+      if (err.code === 1) {
+        document.getElementById('distanceDisplay').textContent = '—';
+        showStatus('Please enable location access to use this app.', 'error');
+      } else {
+        document.getElementById('distanceDisplay').textContent = '—';
+        showStatus('Could not get your location. Please try again.', 'error');
+      }
+    },
+    { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+  );
+}
+
+document.addEventListener('DOMContentLoaded', startLocationWatch);
+
 // Haversine formula — returns straight-line distance in metres between two lat/lng points
 function haversineDistance(lat1, lng1, lat2, lng2) {
   const R = 6371000; // Earth's mean radius in metres
