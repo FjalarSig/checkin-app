@@ -214,7 +214,7 @@
 <body>
 
 <div class="card">
-  <div class="logo"><img src="public/fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
+  <div class="logo"><img src="fjolsmidjan_logo.png" alt="Fjölsmiðjan"></div>
   <h1>Fjölsmiðjan</h1>
   <p class="subtitle">Log your arrival and departure</p>
 
@@ -286,7 +286,15 @@ const CONFIG = {
 // ================================================================
 
 // Initialise the Supabase client
-const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+let supabase;
+try {
+  supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+} catch (e) {
+  document.addEventListener('DOMContentLoaded', () => {
+    showStatus('App failed to load. Please refresh the page.', 'error');
+  });
+  throw e;
+}
 
 // Request location immediately on load so distance shows and permission is granted upfront
 function startLocationWatch() {
