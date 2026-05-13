@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Workplace Check-In</title>
+
+  <!-- Supabase JS client (no build step required) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #22c55e;
+      --green-dark: #16a34a;
+      --red:        #ef4444;
+      --red-dark:   #dc2626;
+      --blue:       #3b82f6;
+      --gray-50:    #f9fafb;
+      --gray-100:   #f3f4f6;
+      --gray-200:   #e5e7eb;
+      --gray-600:   #4b5563;
+      --gray-700:   #374151;
+      --gray-900:   #111827;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 32px 16px 48px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 24px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--gray-600);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--gray-700);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px 16px;
+      font-size: 1.1rem;
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      color: var(--gray-900);
+      margin-bottom: 28px;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--blue);
+    }
+
+    input[type="text"]::placeholder {
+      color: #c4c9d4;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 20px 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    button:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-checkin {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-checkin:hover:not(:disabled) {
+      background: var(--green-dark);
+    }
+
+    .btn-checkout {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-checkout:hover:not(:disabled) {
+      background: var(--red-dark);
+    }
+
+    /* Distance indicator */
+    .location-box {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: var(--gray-600);
+    }
+
+    .location-box .distance-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-top: 2px;
+    }
+
+    /* Status messages */
+    .status {
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .status.show { display: block; }
+
+    .status.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1.5px solid #bbf7d0;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1.5px solid #fecaca;
+    }
+
+    .status.loading {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1.5px solid #bfdbfe;
+    }
+
+    /* Spinner used inside loading messages */
+    .spinner {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border: 2.5px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">🏢</div>
+  <h1>Workplace Check-In</h1>
+  <p class="subtitle">Log your arrival and departure</p>
+
+  <label for="workerName">Your Name or Worker ID</label>
+  <input
+    type="text"
+    id="workerName"
+    placeholder="e.g. Jane Smith"
+    autocomplete="name"
+    autocorrect="off"
+    autocapitalize="words"
+    spellcheck="false"
+  >
+
+  <div class="buttons">
+    <button class="btn-checkin"  id="btnCheckIn"  onclick="handleEvent('check_in')">✅ Check In</button>
+    <button class="btn-checkout" id="btnCheckOut" onclick="handleEvent('check_out')">🚪 Check Out</button>
+  </div>
+
+  <div class="location-box" id="locationBox">
+    <div>Distance from workplace</div>
+    <div class="distance-value" id="distanceDisplay">—</div>
+  </div>
+
+  <div class="status" id="statusMsg"></div>
+</div>
+
+<script>
+/*
+ * ================================================================
+ * SUPABASE TABLE SETUP
+ * Run the SQL below once in your Supabase project's SQL editor.
+ * ================================================================
+ *
+ * create table public.checkins (
+ *   id               uuid        primary key default gen_random_uuid(),
+ *   worker_name      text        not null,
+ *   event_type       text        not null check (event_type in ('check_in', 'check_out')),
+ *   timestamp        timestamptz not null default now(),
+ *   latitude         float8,
+ *   longitude        float8,
+ *   distance_meters  float8
+ * );
+ *
+ * -- Enable Row Level Security
+ * alter table public.checkins enable row level security;
+ *
+ * -- Allow anonymous inserts (Phase 1 — no login required)
+ * create policy "Allow anon inserts"
+ *   on public.checkins
+ *   for insert
+ *   to anon
+ *   with check (true);
+ *
+ * ================================================================
+ */
+
+// ================================================================
+// CONFIGURATION — update these values before deploying
+// ================================================================
+const CONFIG = {
+  SUPABASE_URL:           "YOUR_SUPABASE_URL",       // e.g. https://xxxx.supabase.co
+  SUPABASE_ANON_KEY:      "YOUR_SUPABASE_ANON_KEY",  // your project's anon/public key
+  WORKPLACE_LAT:           64.094941,                 // latitude of the workplace
+  WORKPLACE_LNG:          -21.808201,                 // longitude of the workplace
+  GEOFENCE_RADIUS_METERS:  50,                        // allowed radius in meters
+  TABLE_NAME:             "checkins"                  // Supabase table name
+};
+// ================================================================
+
+// Initialise the Supabase client
+const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+// Haversine formula — returns straight-line distance in metres between two lat/lng points
+function haversineDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371000; // Earth's mean radius in metres
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function showStatus(html, type) {
+  const el = document.getElementById('statusMsg');
+  el.innerHTML = html;
+  el.className = `status show ${type}`;
+}
+
+function setButtons(disabled) {
+  document.getElementById('btnCheckIn').disabled = disabled;
+  document.getElementById('btnCheckOut').disabled = disabled;
+}
+
+function updateDistanceDisplay(metres) {
+  document.getElementById('distanceDisplay').textContent =
+    metres < 1000
+      ? `${Math.round(metres)} m away`
+      : `${(metres / 1000).toFixed(2)} km away`;
+}
+
+async function handleEvent(eventType) {
+  const workerName = document.getElementById('workerName').value.trim();
+  const actionLabel = eventType === 'check_in' ? 'check in' : 'check out';
+
+  // Validate name
+  if (!workerName) {
+    showStatus('Please enter your name before checking in.', 'error');
+    document.getElementById('workerName').focus();
+    return;
+  }
+
+  // Confirm geolocation is supported
+  if (!navigator.geolocation) {
+    showStatus('Please enable location access to use this app.', 'error');
+    return;
+  }
+
+  showStatus('<span class="spinner"></span> Getting your location…', 'loading');
+  setButtons(true);
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+      const distance = haversineDistance(
+        latitude, longitude,
+        CONFIG.WORKPLACE_LAT, CONFIG.WORKPLACE_LNG
+      );
+
+      updateDistanceDisplay(distance);
+
+      // Geofence check
+      if (distance > CONFIG.GEOFENCE_RADIUS_METERS) {
+        showStatus(
+          `You must be at the workplace to ${actionLabel}.<br>
+           <small>You are ${Math.round(distance)} m away — limit is ${CONFIG.GEOFENCE_RADIUS_METERS} m.</small>`,
+          'error'
+        );
+        setButtons(false);
+        return;
+      }
+
+      showStatus('<span class="spinner"></span> Submitting…', 'loading');
+
+      const { error } = await supabase
+        .from(CONFIG.TABLE_NAME)
+        .insert({
+          worker_name:     workerName,
+          event_type:      eventType,
+          latitude:        latitude,
+          longitude:       longitude,
+          distance_meters: Math.round(distance)
+        });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        showStatus('Something went wrong. Please try again.', 'error');
+      } else {
+        const verb = eventType === 'check_in' ? 'Checked in' : 'Checked out';
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        showStatus(`${verb} successfully at ${time}. See you!`, 'success');
+        document.getElementById('workerName').value = '';
+      }
+
+      setButtons(false);
+    },
+    (err) => {
+      // GPS error codes: 1 = PERMISSION_DENIED, 2 = UNAVAILABLE, 3 = TIMEOUT
+      if (err.code === 1) {
+        showStatus('Please enable location access to use this app.', 'error');
+      } else if (err.code === 3) {
+        showStatus('Could not get your location. Please try again.', 'error');
+      } else {
+        showStatus('Could not get your location. Please try again.', 'error');
+      }
+      setButtons(false);
+    },
+    { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+  );
+}
+</script>
+
+</body>
+</html>
